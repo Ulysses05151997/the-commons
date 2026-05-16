@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Cloud platform -->
+  <ellipse cx="256" cy="410" rx="180" ry="50" fill="#E8E0D8" opacity="0.6"/>
+  <ellipse cx="256" cy="400" rx="160" ry="40" fill="#F5F0E8"/>
+
+  <!-- Computing resource icons (small, around the cloud) -->
+  <!-- CPU chip - left -->
+  <g transform="translate(95,370)">
+    <rect x="0" y="0" width="28" height="28" rx="3" fill="#556B2F" opacity="0.8"/>
+    <rect x="6" y="6" width="16" height="16" rx="1" fill="#3D4F22"/>
+    <line x1="10" y1="6" x2="10" y2="22" stroke="#556B2F" stroke-width="1"/>
+    <line x1="18" y1="6" x2="18" y2="22" stroke="#556B2F" stroke-width="1"/>
+    <line x1="6" y1="12" x2="22" y2="12" stroke="#556B2F" stroke-width="1"/>
+    <line x1="6" y1="16" x2="22" y2="16" stroke="#556B2F" stroke-width="1"/>
+  </g>
+  <!-- GPU - right -->
+  <g transform="translate(389,370)">
+    <rect x="0" y="0" width="32" height="22" rx="3" fill="#556B2F" opacity="0.8"/>
+    <rect x="4" y="4" width="10" height="14" rx="1" fill="#3D4F22"/>
+    <rect x="18" y="4" width="10" height="14" rx="1" fill="#3D4F22"/>
+  </g>
+  <!-- RAM stick - far left -->
+  <g transform="translate(70,340)">
+    <rect x="0" y="0" width="8" height="24" rx="2" fill="#556B2F" opacity="0.7"/>
+    <rect x="2" y="3" width="4" height="4" fill="#3D4F22"/>
+    <rect x="2" y="10" width="4" height="4" fill="#3D4F22"/>
+    <rect x="2" y="17" width="4" height="4" fill="#3D4F22"/>
+  </g>
+  <!-- SSD - far right -->
+  <g transform="translate(430,345)">
+    <rect x="0" y="0" width="24" height="16" rx="3" fill="#556B2F" opacity="0.7"/>
+    <rect x="4" y="4" width="8" height="8" rx="1" fill="#3D4F22"/>
+    <circle cx="18" cy="8" r="2" fill="#3D4F22"/>
+  </g>
+
+  <!-- Penguin body -->
+  <ellipse cx="256" cy="310" rx="75" ry="95" fill="#2D2D2D"/>
+  <!-- Belly -->
+  <ellipse cx="256" cy="320" rx="50" ry="70" fill="#F5F0E8"/>
+
+  <!-- Feet -->
+  <ellipse cx="228" cy="395" rx="22" ry="10" fill="#CD853F"/>
+  <ellipse cx="284" cy="395" rx="22" ry="10" fill="#CD853F"/>
+
+  <!-- Wings/flippers -->
+  <ellipse cx="178" cy="300" rx="18" ry="55" transform="rotate(10,178,300)" fill="#2D2D2D"/>
+  <ellipse cx="334" cy="300" rx="18" ry="55" transform="rotate(-10,334,300)" fill="#2D2D2D"/>
+
+  <!-- Head -->
+  <circle cx="256" cy="205" r="60" fill="#2D2D2D"/>
+  <!-- Face/white patch -->
+  <ellipse cx="256" cy="215" rx="42" ry="35" fill="#F5F0E8"/>
+
+  <!-- Eyes -->
+  <circle cx="238" cy="200" r="8" fill="white"/>
+  <circle cx="274" cy="200" r="8" fill="white"/>
+  <circle cx="240" cy="199" r="4" fill="#1a1a1a"/>
+  <circle cx="276" cy="199" r="4" fill="#1a1a1a"/>
+  <!-- Eye shine -->
+  <circle cx="242" cy="197" r="1.5" fill="white"/>
+  <circle cx="278" cy="197" r="1.5" fill="white"/>
+
+  <!-- Beak -->
+  <polygon points="248,218 264,218 256,232" fill="#CD853F"/>
+
+  <!-- Headset band -->
+  <path d="M196,185 Q196,140 256,135 Q316,140 316,185" fill="none" stroke="#8B1A1A" stroke-width="8" stroke-linecap="round"/>
+  <!-- Left ear cup -->
+  <rect x="184" y="178" width="20" height="28" rx="6" fill="#8B1A1A"/>
+  <rect x="188" y="184" width="12" height="16" rx="3" fill="#6B1010"/>
+  <!-- Right ear cup -->
+  <rect x="308" y="178" width="20" height="28" rx="6" fill="#8B1A1A"/>
+  <rect x="312" y="184" width="12" height="16" rx="3" fill="#6B1010"/>
+</svg>

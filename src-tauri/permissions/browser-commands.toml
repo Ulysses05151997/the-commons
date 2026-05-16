@@ -1,0 +1,20 @@
+[[permission]]
+identifier = "allow-browser-commands"
+description = "Allows browser navigation commands"
+
+[permission.commands]
+allow = [
+  "navigate",
+  "go_back",
+  "go_forward",
+  "refresh",
+  "stop_loading",
+  "smart_navigate",
+  "save_favorite",
+  "remove_favorite",
+  "load_favorites",
+  "new_tab",
+  "close_tab",
+  "switch_tab",
+  "get_tabs",
+]

@@ -4,3 +4,11 @@
 src-tauri/target/
 src-tauri/gen/
 src.bak/
+electron-extracted/
+claude-mcp-host/
+src-tauri-old-wry/
+docs/
+packaging/deb/
+CLAUDE.md
+CLAUDE_NATIVE_HANDOVER.md
+PHASE_5_6_HANDOVER.md

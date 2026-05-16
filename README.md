@@ -1,26 +1,26 @@
-# Claude Native Desktop for Linux
+# The Commons Browser
 
-A native Linux client for [claude.ai](https://claude.ai) in 117 lines of Rust. No Electron. No Chromium. Uses the system WebKitGTK webview.
+A lightweight, privacy-focused web browser built in Rust with Tauri v2 and WebKitGTK. Part of The Compute Commons project -- a community-owned distributed computing platform for the Linux community.
 
-## Why
-
-The official Claude Desktop app ships as an Electron wrapper — a full Chromium browser bundled inside an application just to render a chat interface. On older or resource-constrained Linux hardware, this means hundreds of megabytes of RAM consumed before you type a single message.
-
-This project replaces that with a native GTK window and the system WebKitGTK renderer. Same claude.ai interface. Fraction of the resources.
+The Commons is the community's gateway to the web: fast, minimal, and private by architecture.
 
 ## Features
 
-- **Native GTK window** with system WebKitGTK webview — no bundled browser engine
-- **Google OAuth login** via popup window with shared cookie context
-- **Persistent sessions** — cookies stored at `~/.local/share/claude-native/webdata/`, login survives app restarts
-- **Auto-resize** — GTK handles layout natively, works with maximize/restore/manual resize
-- **117 lines of Rust** — the entire application
+- **Privacy by default** -- no browser history stored, ever. No visited URLs on disk. Nothing persists between sessions.
+- **No persistent cookies** -- session cookies work normally while the browser is open. When the browser closes, all cookies are destroyed.
+- **Smart URL bar** -- type `reddit` and it goes to reddit.com. Type `linux news` and it searches DuckDuckGo. Handles URLs with dots, single words, and search queries intelligently.
+- **Tabs** -- lightweight tab support sharing a single WebKitGTK process. No 200MB-per-tab Chrome bloat.
+- **Favorites** -- the only thing the browser writes to disk. Saved as simple JSON at `~/.config/the-commons/favorites.json`.
+- **Home page** -- opens to computecommons.cloud with a DuckDuckGo fallback if unreachable.
+- **Idle the Penguin** -- the Compute Commons mascot as the app icon.
+- **9.6MB binary** -- the entire browser.
 
 ## Requirements
 
 - Linux with GTK 3 and WebKitGTK 4.1+
 - Rust toolchain (rustup.rs)
 - System packages:
+
 ```bash
 # Ubuntu/Debian
 sudo apt install libgtk-3-dev libwebkit2gtk-4.1-dev build-essential
@@ -36,56 +36,57 @@ cd src-tauri
 cargo build --release
 ```
 
+The binary is at `target/release/the-commons`.
+
 ## Run
 
 ```bash
-./src-tauri/target/release/claude-desktop
+./src-tauri/target/release/the-commons
 ```
 
-Or for development:
+## Keyboard Shortcuts
 
-```bash
-cd src-tauri
-cargo run
-```
+| Shortcut | Action |
+|----------|--------|
+| Ctrl+L | Focus URL bar |
+| Ctrl+T | New tab |
+| Ctrl+W | Close current tab |
+| Ctrl+R | Refresh page |
+| Enter (in URL bar) | Navigate or search |
+| Escape | Stop loading |
+
+## Smart URL Bar
+
+- `google.com` -- navigates to https://google.com
+- `reddit` -- navigates to https://www.reddit.com (DNS check)
+- `linux news` -- searches DuckDuckGo
+- `what is rust` -- searches DuckDuckGo
+- `https://example.com` -- navigates directly
+
+## Privacy Architecture
+
+The Commons stores nothing. No history. No cookies. No cache. No tracking. The only file on disk is `~/.config/the-commons/favorites.json` -- and only if you explicitly bookmark a page.
+
+On startup, the browser clears any data from the previous session. On shutdown, it clears again. WebKitGTK's data and cache directories for this app are wiped both ways.
 
 ## Desktop Entry
 
-To add to your application launcher:
-
 ```bash
-cat > ~/.local/share/applications/claude-native.desktop << 'EOF'
+cat > ~/.local/share/applications/the-commons.desktop << 'EOF'
 [Desktop Entry]
-Name=Claude Native
-Comment=Native Linux Claude client — no Electron
-Exec=/path/to/claude-desktop/src-tauri/target/release/claude-desktop
-Icon=applications-internet
+Name=The Commons
+Comment=Privacy-focused browser for The Compute Commons
+Exec=/path/to/src-tauri/target/release/the-commons
+Icon=/path/to/src-tauri/icons/icon.png
 Type=Application
-Categories=Network;Chat;
+Categories=Network;WebBrowser;
 EOF
 ```
-
-## How It Works
-
-The app creates a single GTK window with a WebKitGTK webview pointed at claude.ai. All navigation — Chat, Cowork, Code — is handled by claude.ai's own built-in UI. Google OAuth is handled via a popup window that shares the same web process and cookies as the main view.
-Session data persists at `~/.local/share/claude-native/webdata/` so you stay logged in between app restarts.
-
-## What This Is Not
-
-This is a lightweight native wrapper for claude.ai. It does **not** include:
-
-- MCP (Model Context Protocol) server integration
-- Terminal emulator / Claude Code integration
-- Cowork VM sandbox
-- System tray or global hotkeys
-
-Those are future goals. Today it replaces Electron with 117 lines of Rust and gives you the same claude.ai experience with native performance.
 
 ## Tested On
 
 - Ubuntu 24.04
-- MacBook Pro 17" (2011) — Intel HD 3000, 16GB RAM
-- X11 and Wayland (XWayland)
+- MacBook Pro 17" (2011) -- Intel HD 3000, 16GB RAM
 
 ## License
 
@@ -93,4 +94,4 @@ MIT
 
 ## Author
 
-Ulysses Isa — [github.com/Ulysses05151997](https://github.com/Ulysses05151997)
+Ulysses Isa -- [github.com/Ulysses05151997](https://github.com/Ulysses05151997)

@@ -1,46 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Desktop</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #16213e;
-      height: 46px;
-      overflow: hidden;
-      display: flex;
-    }
-    .tab {
-      background: none;
-      border: none;
-      color: #8892a8;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-    }
-    .tab:hover { color: #c4c9d6; background: rgba(255,255,255,0.05); }
-    .tab.active { color: #e8a87c; border-bottom-color: #e8a87c; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Commons</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: #252525; color: #e0e0e0; font-family: system-ui, -apple-system, sans-serif; }
+
+#layout { display: flex; flex-direction: column; height: 100vh; }
+
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #252525;
+  border-bottom: 1px solid #333;
+  -webkit-app-region: drag;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+#toolbar button {
+  -webkit-app-region: no-drag;
+  background: #333;
+  border: none;
+  color: #ccc;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#toolbar button:hover { background: #444; color: #fff; }
+#toolbar button:active { background: #555; }
+
+#btn-star { font-size: 18px; }
+#btn-star.favorited { color: #CD853F; }
+
+#url-bar {
+  -webkit-app-region: no-drag;
+  flex: 1;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-size: 14px;
+  outline: none;
+  min-width: 200px;
+}
+#url-bar:focus { border-color: #8B1A1A; }
+
+/* Favorites dropdown */
+.favs-wrap { position: relative; -webkit-app-region: no-drag; }
+#favs-dropdown {
+  display: none;
+  position: absolute;
+  top: 36px;
+  right: 0;
+  width: 320px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  z-index: 100;
+}
+.fav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+  font-size: 13px;
+}
+.fav-item:last-child { border-bottom: none; }
+.fav-item:hover { background: #333; }
+.fav-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #ddd;
+}
+.fav-remove {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.fav-remove:hover { color: #e44; }
+.fav-empty { padding: 16px; text-align: center; color: #888; font-size: 13px; }
+.fav-header { padding: 8px 12px; font-size: 12px; color: #888; border-bottom: 1px solid #333; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Tab bar */
+#tab-bar {
+  display: flex;
+  align-items: center;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  height: 32px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  padding: 0 4px;
+  -webkit-app-region: no-drag;
+}
+#tab-bar::-webkit-scrollbar { height: 0; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  margin: 0 1px;
+  border-radius: 4px 4px 0 0;
+  background: #2a2a2a;
+  cursor: pointer;
+  font-size: 12px;
+  color: #aaa;
+  max-width: 180px;
+  min-width: 60px;
+  flex-shrink: 0;
+  user-select: none;
+}
+.tab:hover { background: #333; }
+.tab.active { background: #353535; color: #eee; border-bottom: 2px solid #8B1A1A; }
+
+.tab-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close {
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 2px;
+  margin-left: 6px;
+  border-radius: 2px;
+  line-height: 1;
+}
+.tab-close:hover { background: #555; color: #eee; }
+
+.new-tab {
+  width: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  justify-content: center;
+  font-size: 16px;
+  color: #888;
+  background: transparent;
+}
+.new-tab:hover { background: #333; color: #ccc; }
+</style>
 </head>
 <body>
-  <button class="tab active" data-tab="chat">Chat</button>
-  <button class="tab" data-tab="cowork">Cowork</button>
-  <button class="tab" data-tab="code">Code</button>
-  <script>
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        if (window.__TAURI__) {
-          window.__TAURI__.core.invoke('switch_tab', { tab: tab.dataset.tab });
-        }
-      });
+<div id="layout">
+  <div id="toolbar">
+    <button id="btn-back" title="Back (Alt+Left)">&#9664;</button>
+    <button id="btn-forward" title="Forward (Alt+Right)">&#9654;</button>
+    <button id="btn-refresh" title="Refresh (Ctrl+R)">&#8635;</button>
+    <button id="btn-home" title="Home">&#8962;</button>
+    <input id="url-bar" type="text" placeholder="Search or enter URL..." spellcheck="false" autocomplete="off">
+    <button id="btn-star" title="Bookmark this page">&#9734;</button>
+    <div class="favs-wrap">
+      <button id="btn-favs" title="Favorites">&#9776;</button>
+      <div id="favs-dropdown">
+        <div class="fav-header">Favorites</div>
+        <div id="favs-list"></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-bar"></div>
+</div>
+
+<script>
+const HOME_URL = 'https://computecommons.cloud';
+
+const { invoke } = window.__TAURI__.core;
+const { listen } = window.__TAURI__.event;
+
+const urlBar = document.getElementById('url-bar');
+const btnBack = document.getElementById('btn-back');
+const btnForward = document.getElementById('btn-forward');
+const btnRefresh = document.getElementById('btn-refresh');
+const btnHome = document.getElementById('btn-home');
+const btnStar = document.getElementById('btn-star');
+const btnFavs = document.getElementById('btn-favs');
+const favsDropdown = document.getElementById('favs-dropdown');
+const favsList = document.getElementById('favs-list');
+const tabBar = document.getElementById('tab-bar');
+
+let currentUrl = '';
+let tabs = [];
+let favorites = [];
+
+// --- Smart URL bar ---
+
+urlBar.addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter') {
+    const input = urlBar.value.trim();
+    if (!input) return;
+    const url = await invoke('smart_navigate', { input });
+    if (url) await invoke('navigate', { url });
+  } else if (e.key === 'Escape') {
+    urlBar.blur();
+  }
+});
+
+// --- Navigation ---
+
+btnBack.addEventListener('click', () => invoke('go_back'));
+btnForward.addEventListener('click', () => invoke('go_forward'));
+btnRefresh.addEventListener('click', () => invoke('refresh'));
+btnHome.addEventListener('click', () => invoke('navigate', { url: HOME_URL }));
+
+// --- Favorites ---
+
+async function refreshFavorites() {
+  favorites = await invoke('load_favorites');
+  updateStarButton();
+  renderFavorites();
+}
+
+function updateStarButton() {
+  const isFav = favorites.some(f => f.url === currentUrl);
+  btnStar.innerHTML = isFav ? '&#9733;' : '&#9734;';
+  btnStar.className = isFav ? 'favorited' : '';
+  btnStar.title = isFav ? 'Remove from favorites' : 'Bookmark this page';
+}
+
+btnStar.addEventListener('click', async () => {
+  const isFav = favorites.some(f => f.url === currentUrl);
+  if (isFav) {
+    await invoke('remove_favorite', { url: currentUrl });
+  } else {
+    const activeTab = tabs.find(t => t.active);
+    const title = activeTab && activeTab.title ? activeTab.title : currentUrl;
+    await invoke('save_favorite', { title, url: currentUrl });
+  }
+  await refreshFavorites();
+});
+
+btnFavs.addEventListener('click', (e) => {
+  e.stopPropagation();
+  favsDropdown.style.display = favsDropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+document.addEventListener('click', (e) => {
+  if (!favsDropdown.contains(e.target) && e.target !== btnFavs) {
+    favsDropdown.style.display = 'none';
+  }
+});
+
+function renderFavorites() {
+  favsList.innerHTML = '';
+  if (favorites.length === 0) {
+    favsList.innerHTML = '<div class="fav-empty">No favorites yet</div>';
+    return;
+  }
+  favorites.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'fav-item';
+
+    const title = document.createElement('span');
+    title.className = 'fav-title';
+    title.textContent = f.title || f.url;
+    title.title = f.url;
+    title.addEventListener('click', () => {
+      invoke('navigate', { url: f.url });
+      favsDropdown.style.display = 'none';
     });
-  </script>
+
+    const remove = document.createElement('button');
+    remove.className = 'fav-remove';
+    remove.innerHTML = '&#10005;';
+    remove.title = 'Remove';
+    remove.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await invoke('remove_favorite', { url: f.url });
+      await refreshFavorites();
+    });
+
+    item.appendChild(title);
+    item.appendChild(remove);
+    favsList.appendChild(item);
+  });
+}
+
+// --- Tabs ---
+
+function renderTabs() {
+  tabBar.innerHTML = '';
+  tabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (tab.active ? ' active' : '');
+
+    const title = document.createElement('span');
+    title.className = 'tab-title';
+    title.textContent = tab.title || 'New Tab';
+    title.addEventListener('click', () => {
+      if (!tab.active) invoke('switch_tab', { tabId: tab.id });
+    });
+
+    const close = document.createElement('button');
+    close.className = 'tab-close';
+    close.innerHTML = '&#10005;';
+    close.title = 'Close tab';
+    close.addEventListener('click', (e) => {
+      e.stopPropagation();
+      invoke('close_tab', { tabId: tab.id });
+    });
+
+    el.appendChild(title);
+    el.appendChild(close);
+    tabBar.appendChild(el);
+  });
+
+  const newBtn = document.createElement('div');
+  newBtn.className = 'tab new-tab';
+  newBtn.textContent = '+';
+  newBtn.title = 'New tab (Ctrl+T)';
+  newBtn.addEventListener('click', () => invoke('new_tab', { url: null }));
+  tabBar.appendChild(newBtn);
+}
+
+// --- Events from Rust ---
+
+listen('url-changed', (event) => {
+  currentUrl = event.payload;
+  urlBar.value = currentUrl;
+  updateStarButton();
+});
+
+listen('tabs-updated', (event) => {
+  tabs = event.payload;
+  renderTabs();
+});
+
+// --- Keyboard shortcuts ---
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'l') {
+    e.preventDefault();
+    urlBar.focus();
+    urlBar.select();
+  } else if (e.ctrlKey && e.key === 'r') {
+    e.preventDefault();
+    invoke('refresh');
+  } else if (e.ctrlKey && e.key === 't') {
+    e.preventDefault();
+    invoke('new_tab', { url: null });
+  } else if (e.ctrlKey && e.key === 'w') {
+    e.preventDefault();
+    const active = tabs.find(t => t.active);
+    if (active) invoke('close_tab', { tabId: active.id });
+  } else if (e.key === 'Escape') {
+    invoke('stop_loading');
+    favsDropdown.style.display = 'none';
+  }
+});
+
+// --- Init ---
+
+refreshFavorites();
+invoke('get_tabs').then(t => { tabs = t; renderTabs(); });
+</script>
 </body>
 </html>
