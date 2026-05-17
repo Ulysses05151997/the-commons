@@ -9,6 +9,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = ["unstable"] }
 gtk = { version = "0.18", features = ["v3_24"] }
+webkit2gtk = "2.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 

@@ -136,7 +136,7 @@ fn create_browser_webview(
     let ah1 = app_handle.clone();
     let ah2 = app_handle.clone();
 
-    window
+    let webview = window
         .add_child(
             WebviewBuilder::new(label, WebviewUrl::External(parsed_url))
                 .on_page_load(
@@ -174,7 +174,33 @@ fn create_browser_webview(
             LogicalPosition::new(0.0, TOOLBAR_HEIGHT),
             LogicalSize::new(1200.0, 800.0 - TOOLBAR_HEIGHT),
         )
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+
+    // Handle links with target="_blank" or target="_top" by navigating in-tab
+    let _ = webview.with_webview(|platform| {
+        use webkit2gtk::{WebViewExt, PolicyDecisionType, PolicyDecisionExt,
+                         NavigationPolicyDecisionExt, URIRequestExt};
+        use webkit2gtk::glib::Cast;
+
+        let wv = platform.inner();
+        wv.connect_decide_policy(move |wv, decision, decision_type| {
+            if decision_type == PolicyDecisionType::NewWindowAction {
+                if let Ok(nav) = decision.clone().downcast::<webkit2gtk::NavigationPolicyDecision>() {
+                    if let Some(req) = nav.request() {
+                        if let Some(uri) = req.uri() {
+                            let url_str = uri.to_string();
+                            decision.ignore();
+                            wv.load_uri(&url_str);
+                            return true;
+                        }
+                    }
+                }
+            }
+            false
+        });
+    });
+
+    Ok(webview)
 }
 
 // --- Commands: Favorites ---
@@ -553,7 +579,76 @@ pub fn run() {
 
             let _ = browser.with_webview(|platform| {
                 use gtk::prelude::*;
+                use webkit2gtk::{WebContextExt, WebViewExt, DownloadExt};
+
                 let wv = platform.inner();
+
+                if let Some(ctx) = wv.web_context() {
+                    ctx.connect_download_started(move |_ctx, download: &webkit2gtk::Download| {
+                        let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
+                        let downloads_dir = format!("{}/Downloads", home);
+                        let _ = std::fs::create_dir_all(&downloads_dir);
+
+                        // Notify user that download started
+                        let _ = std::process::Command::new("notify-send")
+                            .args(["The Commons", "Download started..."])
+                            .arg("--icon=document-save")
+                            .arg("-t").arg("3000")
+                            .spawn();
+
+                        download.connect_decide_destination(move |dl: &webkit2gtk::Download, suggested: &str| {
+                            let home2 = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
+                            let downloads_dir2 = format!("{}/Downloads", home2);
+                            let filename = if suggested.is_empty() {
+                                "download"
+                            } else {
+                                suggested
+                            };
+                            let base_path = format!("{}/{}", downloads_dir2, filename);
+                            let mut dest_path = base_path.clone();
+                            let mut counter = 1u32;
+                            while std::path::Path::new(&dest_path).exists() {
+                                let (stem, ext) = match filename.rfind('.') {
+                                    Some(pos) => (&filename[..pos], &filename[pos..]),
+                                    None => (filename, ""),
+                                };
+                                dest_path =
+                                    format!("{}/{} ({}){}", downloads_dir2, stem, counter, ext);
+                                counter += 1;
+                            }
+                            dl.set_destination(&format!("file://{}", dest_path));
+                            true
+                        });
+
+                        // Notify on completion
+                        download.connect_finished(|dl: &webkit2gtk::Download| {
+                            let dest = dl.destination()
+                                .map(|s| s.to_string())
+                                .unwrap_or_default()
+                                .replace("file://", "");
+                            let fname = std::path::Path::new(&dest)
+                                .file_name()
+                                .map(|f| f.to_string_lossy().to_string())
+                                .unwrap_or_else(|| "file".to_string());
+                            let _ = std::process::Command::new("notify-send")
+                                .args(["The Commons", &format!("Saved: {}", fname)])
+                                .arg("--icon=document-save")
+                                .arg("-t").arg("5000")
+                                .spawn();
+                        });
+
+                        // Notify on failure
+                        download.connect_failed(|_dl: &webkit2gtk::Download, err| {
+                            let msg = format!("Download failed: {}", err);
+                            let _ = std::process::Command::new("notify-send")
+                                .args(["The Commons", &msg])
+                                .arg("--icon=dialog-error")
+                                .arg("-t").arg("5000")
+                                .spawn();
+                        });
+                    });
+                }
+
                 if let Some(parent) = wv.parent() {
                     if let Some(vbox) = parent.downcast_ref::<gtk::Box>() {
                         vbox.set_child_packing(&wv, true, true, 0, gtk::PackType::Start);
